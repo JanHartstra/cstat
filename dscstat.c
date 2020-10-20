@@ -12,11 +12,11 @@ Date:    2020-10-19
 typedef struct vector {
    double data[MAX_VECTOR_SIZE];
    int n;
-} vector;
+} Vector;
 
-vector test_vector(void) 
+Vector test_vector(void) 
 {
-   vector test;
+   Vector test;
    test.n = 5;
    test.data[0] = 11;
    test.data[1] = 12;
@@ -26,13 +26,29 @@ vector test_vector(void)
    return test;
 }
 
-void print_vector (vector v)
+void print_vector (Vector x)
 {
    int i;
-   for (i = 0; i < v.n; i++)
+   for (i = 0; i < x.n; i++)
    {
-      printf("Element %d : %9.3f\n", i, v.data[i]);
+      printf("Element %d : %9.3f\n", i, x.data[i]);
    }
+}
+
+double sum (Vector x)
+{
+   int i;
+   double S = 0;
+   for (i = 0; i < x.n; i++)
+   {
+      S += x.data[i];
+   }
+   return S;
+}
+
+double mean (Vector x)
+{
+   return sum(x)/x.n;
 }
 
 int main(int argc, char *argv[])
@@ -53,10 +69,13 @@ int main(int argc, char *argv[])
        printf("argument list is empty.\n");
        /* Allow the user to enter data */ 
    }
-   vector v;
-   v = test_vector();
-   print_vector(v);
+   Vector y;
+   y = test_vector();
+   print_vector(y);
    /* Calculate descriptive statistics for the data in data vector */
+   double s = sum(y);
+   printf("Sum       = %9.3f\n", s);
+   printf("Mean      = %9.3f\n", mean(y));
    /* Print the descriptive statistics to standard out (or file?) */
    return 0;
 } 
