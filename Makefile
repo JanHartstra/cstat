@@ -1,15 +1,16 @@
 CC = gcc
 CFLAGS = -g -Wall -lm
+LDFLAGS = -lm
+DEPS = cdist.h
+OBJFILES = dscstat.o cdist.o
+TARGET = dscstat
 
-# Link
-dscstat : dscstat.o cdist.o
-	$(CC) -o dscstat.o cdist.o
+all: $(TARGET)
 
-dscstat.o : dscstat.c
-	$(CC) -c $(CFLAGS) dscstat.c
+$(TARGET): $(OBJFILES)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJFILES) $(LDFLAGS) #$(DEPS)
 
-cdist.o : cdist.c
-	$(CC) -c $(CFLAGS) cdist.c
-
+clean:
+	rm -f $(OBJFILES) $(TARGET) *~
 
 

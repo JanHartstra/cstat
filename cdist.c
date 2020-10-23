@@ -3,15 +3,44 @@ Program  : cdist.c
 Author   : Jan Hartstra
 */
 
+#include <stdio.h>
 #include <math.h> 
 
-double zinv (float p)
+double erf (double x)
+{
+   /*
+   """
+   error function approximation
+   Ambramowitz and Stegun, 7.1.28, p. 299
+   """
+   */
+   double a[] = {1, 0.0705230784, 0.0422820123, 0.0092705272, 0.0001520143, 0.0002765672, 0.0000430638};
+   double S = 0;
+   double t;
+   for (int i = 0; i <= 6; i++)
+   {
+      t = a[i] * pow(x,i);
+      S += t;
+   }
+   return 1-1/pow(S,16);
+}
+   
+/* Standard normal cumulative distribution function */
+/* R function qnorm(p) */
+double normalCDF (double x)
+{
+   return (1+erf(x/sqrt(2)))/2;
+}
+
+/* Inverse normal distribution */
+/* R function qnorm(p) */
+double zinv (double p)
 {
    float c[] = {2.515517, 0.802853, 0.010328};
    float d[] = {1.432788, 0.189269, 0.001308};
-   float z, q, t, a, b; 
+   float q, t, a, b; 
    p = fabs(p); 
-   if ((p<.5) || (p>1.0)) 
+   if (p < 0.5 || p > 1.0)
    { 
       return -9999; 
    }
@@ -20,12 +49,15 @@ double zinv (float p)
       q = 1-p; 
       t = sqrt(log(1/(q*q)));
       a = c[0]+c[1]*t+c[2]*t*t;
-      b = 1+d[1]*t+d[2]*t*t+d[3]*t*t*t;
-      return round((t-a/b)*1.0E+3)/1.0E+3;
+      b = 1+d[0]*t+d[1]*t*t+d[2]*t*t*t;
+      /*return round((t-a/b)*1.0E+3)/1.0E+3;*/
+      return (t-a/b);
    } 
 }
 
-double tinv (float p, int df)
+/* Inverse Students t distributions */
+/* R function qt(p,df) */
+double tinv (double p, int df)
 {
    double g1, g2, g3, g4, tp;
    double x = zinv(p);
@@ -33,7 +65,7 @@ double tinv (float p, int df)
    g2 = 1/96*(5*pow(x,5)+16*pow(x,3)+3*x); 
    g3 = 1/384*(3*pow(x,7)+19*pow(x,5)+17*pow(x,3)-15*x);
    g4 = 1/92160*(79*pow(x,9)+776*pow(x,7)+1482*pow(x,5)-1920*pow(x,3)-945*x); 
-   tp = x+g1/df+g2/pow(df,2)+g3/pow(df,3)+g4/(df,4); 
+   tp = x+g1/df+g2/pow(df,2)+g3/pow(df,3)+g4/pow(df,4); 
    return tp;
 }
 
@@ -85,4 +117,30 @@ end
 --SAS x=tinv(.95,2) -->  2.9199855804 
 --print(tinv(0.95,2))=   1.8597378873181 
 --SAS x=tinv(.95,8) -->  1.85955 
+
+def erf (x):
+   """
+   error function approximation
+   Ambramowitz and Stegun, 7.1.28, p. 299
+   """
+   a=[1, 
+   0.0705230784,
+   0.0422820123,
+   0.0092705272,
+   0.0001520143,
+   0.0002765672,
+   0.0000430638
+   ]
+   s=0
+   for i in range(len(a)):
+      print('i=', i)
+      print('x^i= ', x**i)
+      print('a[i]=', a[i])
+      t=a[i]*x**i
+      print('a[i]*x**i= ', t)
+      s=s+t
+      print('s= ', s)
+   return 1-1/s**16
+
+
 */
