@@ -3,9 +3,7 @@ Program: dcstat.c
 Purpose: Calculate a set of simple destriptive statistics
 Author:  Jan Hartstra
 Date:    2020-10-19
-Compile: gcc -c cdist.c
-         gcc -c dscstat.c 
-         gcc -o dscstat dscstat.o cdist.o -lm
+Compile: Use makefile
 */
 
 #include <stdio.h>
@@ -31,13 +29,30 @@ int main(int argc, char *argv[])
        printf("argument list is empty.\n");
        /* Allow the user to enter data */ 
    }
+
    Vector y;
-   y = test_vector();
+   // y = test_vector();
+   y = load_vector();
+   printf("Data\n");
+   printf("----\n");
    print_vector(y);
+   printf("\n");
    /* Calculate descriptive statistics for the data in data vector */
+   printf("Summary Statistics\n");
+   printf("------------------\n");
    double s = sum(y);
    printf("Sum             = %9.4f\n", s);
+   printf("Minimum         = %9.4f\n", min(y));
+   printf("Maximum         = %9.4f\n", max(y));
    printf("Mean            = %9.4f\n", mean(y));
+   printf("Variance (n-1)  = %9.4f\n", var(y,1));
+   printf("SD (n-1)        = %9.4f\n", sd(y,1));
+   printf("SE              = %9.4f\n", se(y));
+   printf("Variance (n)    = %9.4f\n", var(y,0));
+   printf("SD (n)          = %9.4f\n", sd(y,0));
+   printf("\n");
+   printf("Test\n");
+   printf("----\n");
    printf("erf(2)          = %9.6f\n", erf(2));
    printf("normalCDF(2)    = %9.6f\n", normalCDF(2));
    printf("normalCDF(1.96) = %9.6f\n", normalCDF(1.96));
