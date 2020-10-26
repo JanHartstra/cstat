@@ -35,15 +35,18 @@ double max (Vector x)
    return m;
 }
 
+/* Function returning the range (max - min) of the data vector x. */
+double  range (Vector x)
+{
+   return max(x)-min(x);
+}
+
 /* Function returning the sum of the elements of the data vector x. */
 double sum (Vector x)
 {
    int i;
    double S = 0;
-   for (i = 0; i < x.n; i++)
-   {
-      S += x.data[i];
-   }
+   for (i = 0; i < x.n; i++) S += x.data[i];
    return S;
 }
 
@@ -52,11 +55,18 @@ double sum2 (Vector x)
 {
    int i;
    double S = 0;
-   for (i = 0; i < x.n; i++)
-   {
-      S += pow(x.data[i],2);
-   }
+   for (i = 0; i < x.n; i++) S += pow(x.data[i],2);
    return S;
+}
+
+/* Function returning the geometric mean of the data vector x. */
+Vector logtrans (Vector x)
+{
+   int i;
+   Vector t;
+   t.n = x.n;
+   for (i = 0; i < x.n; i++) t.data[i]=log(x.data[i]);
+   return t;
 }
 
 /* Function returning the arithmetic mean of the data vector x. 
@@ -65,6 +75,13 @@ double sum2 (Vector x)
 double mean (Vector x)
 {
    return sum(x)/x.n;
+}
+
+/* Function returning the geometric mean of the data vector x. */
+double geomean (Vector x)
+{
+   Vector lx = logtrans(x);
+   return exp(mean(lx));
 }
 
 /* Function returning the variance of the data vector x. 
