@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -g -Wall -lm
 LDFLAGS = -lm
-DEPS = cdist.h cdata.h cstat.h
-OBJFILES = dscstat.o cdist.o cdata.o cstat.o
+DEPS = clogs.h cdist.h cdata.h cstat.h
+OBJFILES = dscstat.o clogs.o cdist.o cdata.o cstat.o
 TARGET = dscstat
 
 all: $(TARGET)

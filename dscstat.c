@@ -1,15 +1,16 @@
 /*
-Program: dcstat.c
+Program: dscstat.c
 Purpose: Calculate a set of simple destriptive statistics
 Author:  Jan Hartstra
 Date:    2020-10-19
-Compile: Use makefile
+Compile: Use Makefile
 */
 
 #include <stdio.h>
 #include "cdist.h"
 #include "cdata.h"
 #include "cstat.h"
+#include "clogs.h"
 
 int main(int argc, char *argv[])
 {
@@ -30,6 +31,13 @@ int main(int argc, char *argv[])
        /* Allow the user to enter data */ 
    }
 
+   log_open();
+
+   log_write("This is a message.\n");
+   log_note("This is a note.\n");
+   log_warning("This is a warning.\n");
+   log_error("This is an error.\n");
+
    Vector y;
    // y = test_vector();
    y = load_vector();
@@ -38,6 +46,8 @@ int main(int argc, char *argv[])
    print_vector(y);
    printf("\n");
    /* Calculate descriptive statistics for the data in data vector */
+   /* Print the descriptive statistics to standard out (or file?) */
+
    printf("Summary Statistics\n");
    printf("------------------\n");
    double s = sum(y);
@@ -68,7 +78,8 @@ int main(int argc, char *argv[])
    printf("R: qnorm(0.95)  =  1.644854\n");
    printf("zinv(0.975)     = %9.4f\n", zinv(0.975));
    printf("tinv(0.95,8)    = %9.4f\n", tinv(0.95,8));
-   /* Print the descriptive statistics to standard out (or file?) */
+
+   log_close();
    return 0;
 } 
 
