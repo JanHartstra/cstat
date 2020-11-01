@@ -22,3 +22,8 @@ Vector test_vector(void);
 Vector load_vector(void);
 /* Function to print out the data vector */
 void print_vector(Vector x);
+
+Vector rand_vector (int n);
+
+void sort_vector(Vector *x);
+

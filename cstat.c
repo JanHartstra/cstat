@@ -1,6 +1,6 @@
 /*
 Program: cstat.c
-Purpose: Calculate a set of simple destriptive statistics
+Purpose: Calculate a set of simple univariate destriptive statistics
 Author:  Jan Hartstra
 Date:    2020-10-24
 */
@@ -114,3 +114,7 @@ double se (Vector x)
    return sd(x,1)/sqrt(x.n);
 }
 
+double t_stat (Vector x, double mu_0)
+{
+   return (mean(x)-mu_0)/se(x);
+}

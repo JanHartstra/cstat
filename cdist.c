@@ -1,19 +1,28 @@
-/*
-Program  : cdist.c
-Author   : Jan Hartstra
-*/
+/*-----------------------------------------------------------------------------
+Program name : cdist.c
+Description  : Library providing several statistical distribution functions
+Author       : Jan Hartstra
+Repository   : https://github.com/JanHartstra/cstat.git (git@github.com:JanHartstra/cstat.git)
+-----------------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <math.h> 
+#include <float.h>
+#include "clogs.h"
 
+/*---------------------------------------------------------------------------*/
+/* */
+/*---------------------------------------------------------------------------*/
+
+/*
+Description   : Approximation of the error function 
+See           : Ambramowitz and Stegun, 7.1.28, p. 299
+Depedendencies:
+   Uses   : -
+   Used by: normalCDF
+*/
 double erf (double x)
 {
-   /*
-   """
-   error function approximation
-   Ambramowitz and Stegun, 7.1.28, p. 299
-   """
-   */
    double a[] = {1, 0.0705230784, 0.0422820123, 0.0092705272, 0.0001520143, 0.0002765672, 0.0000430638};
    double S = 0;
    double t;
@@ -55,6 +64,8 @@ double zinv (double p)
    } 
 }
 
+/*---------------------------------------------------------------------------*/
+
 /* Inverse Students t distributions */
 /* R function qt(p,df) */
 double tinv (double p, int df)
@@ -69,10 +80,18 @@ double tinv (double p, int df)
    return tp;
 }
 
-/* Log gamma function  */
-/* Returns the value ln[Gamma(x)] for x > 0. */
-/* See Numerical recipes in C, Section 6.1, page 214. */
-double lgamma(double x)
+/*---------------------------------------------------------------------------*/
+/* */
+/*---------------------------------------------------------------------------*/
+
+/*
+Description   : Returns the value log gamma function ( ln[Gamma(x)] ) for x > 0.
+See           : Numerical recipes in C, Section 6.1, page 214.
+Depedendencies:
+   Uses   : -
+   Used by: normalCDF
+*/
+double loggamma(double x)
 {
    int j;
    double z, y, tmp, ser;
@@ -91,13 +110,251 @@ double lgamma(double x)
    return -tmp+log(2.5066282746310005*ser/z); 
 }
 
-/* Beta function */
-/* See: Numerical recipes in C, Section 6.1, page 216. */
-/* Uses: lgamma() */
+/*---------------------------------------------------------------------------*/
+
+/*
+Description : Returns the Beta function
+See         : Numerical recipes in C, Section 6.1, page 216.
+Dependencies:
+   Uses   : lgamma()
+   Used by:
+*/
 double beta(double a, double b)
 {
-   return exp(lgamma(a)+lgamma(b)-lgamma(a+b));
+   return exp(loggamma(a) + loggamma(b) - loggamma(a+b));
 } 
+
+/*
+Description : Evaluates continued fraction for incomplete beta function by modifid Lentz's method (x5.2). 
+See         :
+Dependencies:
+   Uses   :
+   Used by: incbeta()
+*/
+double betacf(double a, double b, double x) 
+{
+   // Define constants 
+   const int MAXIT = 100;
+   const double EPS = 3.0e-7; 
+   const double FPMIN = DBL_MIN; // Use lua -math.huge?
+
+   int m, m2;
+   double qab, qap, qam, aa, c, d, del, h;
+   qab = a + b;   // These q's will be used in factors that occur 
+   qap = a + 1.0; // in the coeffients (6.4.6). 
+   qam = a - 1.0; 
+   c = 1.0;       // First step of Lentz's method. 
+   d = 1.0 -qab*x / qap; 
+   if (fabs(d) < FPMIN) d = FPMIN;
+   d = 1.0 / d; 
+   h = d; 
+   m = 1; 
+   while (m < MAXIT)
+   { 
+      m2 = 2 * m; 
+      aa = m*(b-m)*x/((qam+m2)*(a+m2));
+      d  = 1.0+aa*d;               // One step (the even one) of the recurrence. 
+      if (fabs(d)< FPMIN) d = FPMIN; 
+      c  = 1.0+aa/c;
+      if (fabs(c)< FPMIN) c = FPMIN;
+      d  = 1.0/d; 
+      h  = h*(d*c); 
+      aa = -(a+m)*(qab+m)*x/((a+m2)*(qap+m2)); 
+      d  = 1.0+aa*d;              // Next step of the recurrence (the odd one). 
+      if (fabs(d)<FPMIN) d=FPMIN; 
+      c  = 1.0+aa/c; 
+      if (fabs(c)<FPMIN) c=FPMIN; 
+      d  = 1.0 / d;
+      del = d*c; 
+      h = h * del; 
+      if (fabs(del-1.0)<EPS) break; // Are we done? 
+      m = m + 1; 
+   }
+   if (m>MAXIT) 
+   {
+      log_error("a or b too big, or MAXIT too small in betacf.");
+      return NAN;
+   }
+   else return h;
+}
+
+/*
+Description : Returns the incomplete beta function Ix(a; b). 
+See         : 
+Depedendencies:
+   Uses   : gammaln(), betacf()
+   Used by: ... 
+*/
+double incbeta (double a, double b, double x) 
+{
+   double bt;
+   if ((x<0.0) ||(x>1.0))
+   {
+      log_error("Invalid x in betacf.");
+      return NAN;
+   }
+   else if ((x==0.0) || (x==1.0)) bt=0.0;
+   else 
+   {
+      // Factors in front of the continued fraction. 
+      bt = exp(loggamma(a+b) - loggamma(a) - loggamma(b) + a * log(x) + b * log(1.0 - x));
+   }
+   if (x < (a + 1.0)/(a + b + 2.0)) 
+   {
+      // Use continued fraction directly. 
+      return bt * betacf(a,b,x) / a; 
+   }
+   else 
+   {
+      // Use continued fraction after making the symmetry transformation. 
+      return 1.0- bt * betacf(b,a,1.0 - x) / b;
+   }
+}
+
+/*
+Description : Returns two sided tails of the Student's t distribution
+See         : Numerical recipies in C 
+Dependencies:
+   Uses   : incbeta()
+   Used by: ... 
+*/
+double At (double t, int df) 
+{
+   double a, b, x;
+   a = df / 2; 
+   b = 1.0/2.0; 
+   x = df / (df + pow(t,2)); 
+   return 1 - incbeta(a,b,x);
+}
+/*
+--print(At(3,8)) 
+--R: 1-2*(1-pt(3,8))=0.9829283 
+*/
+
+/*
+Description : Returns left-sided tail of the Student's t distribution
+See         : Numerical recipies in C 
+Dependencies:
+   Uses   : incbeta()
+   Used by: ... 
+*/
+double Qt (double t, int df) 
+{
+   double a, b, x;
+   a = df / 2; 
+   b = 1.0 / 2.0; 
+   x = df / (df + pow(t,2)); 
+   return incbeta(a,b,x) / 2;
+}
+
+/*
+Description : Returns right-sided tail of the Student's t distribution
+See         : Numerical recipies in C 
+Dependencies:
+   Uses   : incbeta()
+   Used by: ... 
+*/
+double Pt (double t, int df) 
+{
+   double a, b, x;
+   a = df / 2; 
+   b = 1.0 / 2.0; 
+   x = df / (df + pow(t,2)); 
+   return 1 - (incbeta(a,b,x) / 2);
+} 
+/*
+--print(Pt(3,8)) 
+--R: pt(3,8)=0.9914642 
+*/
+
+/*
+ * zlib License
+ *
+ * Regularized Incomplete Beta Function
+ *
+ * Copyright (c) 2016, 2017 Lewis Van Winkle
+ * http://CodePlea.com
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgement in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
+
+
+// #include <math.h>
+
+#define STOP 1.0e-8
+#define TINY 1.0e-30
+
+double zlib_incbeta(double a, double b, double x) {
+    if (x < 0.0 || x > 1.0) return 1.0/0.0;
+
+    /*The continued fraction converges nicely for x < (a+1)/(a+b+2)*/
+    if (x > (a+1.0)/(a+b+2.0)) {
+        return (1.0-incbeta(b,a,1.0-x)); /*Use the fact that beta is symmetrical.*/
+    }
+
+    /*Find the first part before the continued fraction.*/
+    const double lbeta_ab = lgamma(a)+lgamma(b)-lgamma(a+b);
+    const double front = exp(log(x)*a+log(1.0-x)*b-lbeta_ab) / a;
+
+    /*Use Lentz's algorithm to evaluate the continued fraction.*/
+    double f = 1.0, c = 1.0, d = 0.0;
+
+    int i, m;
+    for (i = 0; i <= 200; ++i) {
+        m = i/2;
+
+        double numerator;
+        if (i == 0) {
+            numerator = 1.0; /*First numerator is 1.0.*/
+        } else if (i % 2 == 0) {
+            numerator = (m*(b-m)*x)/((a+2.0*m-1.0)*(a+2.0*m)); /*Even term.*/
+        } else {
+            numerator = -((a+m)*(a+b+m)*x)/((a+2.0*m)*(a+2.0*m+1)); /*Odd term.*/
+        }
+
+        /*Do an iteration of Lentz's algorithm.*/
+        d = 1.0 + numerator * d;
+        if (fabs(d) < TINY) d = TINY;
+        d = 1.0 / d;
+
+        c = 1.0 + numerator / c;
+        if (fabs(c) < TINY) c = TINY;
+
+        const double cd = c*d;
+        f *= cd;
+
+        /*Check for stop.*/
+        if (fabs(1.0-cd) < STOP) {
+            return front * (f-1.0);
+        }
+    }
+
+    return 1.0/0.0; /*Needed more loops, did not converge.*/
+}
+
+/*
+Source: https://codeplea.com/incomplete-beta-function-c 
+*/
+double student_t_cdf(double t, double v) {
+    // The cumulative distribution function (CDF) for Student's t distribution
+    double x = (t + sqrt(t * t + v)) / (2.0 * sqrt(t * t + v));
+    double prob = incbeta(v/2.0, v/2.0, x);
+    return prob;
+}
 
 /*
 My Lua implementation

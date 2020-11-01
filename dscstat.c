@@ -1,12 +1,14 @@
-/*
-Program: dscstat.c
-Purpose: Calculate a set of simple destriptive statistics
-Author:  Jan Hartstra
-Date:    2020-10-19
-Compile: Use Makefile
-*/
+/*-----------------------------------------------------------------------------
+Program name : dscstat.c
+Description  : Command line program to calculate and report univariate 
+Repository   : https://github.com/JanHartstra/cstat.git (git@github.com:JanHartstra/cstat.git)
+Author       : Jan Hartstra
+Compile      : Use Makefile
+-----------------------------------------------------------------------------*/
 
+#define _GNU_SOURCE // Use asprintf() function?
 #include <stdio.h>
+#include <stdlib.h>
 #include "cdist.h"
 #include "cdata.h"
 #include "cstat.h"
@@ -14,6 +16,22 @@ Compile: Use Makefile
 
 int main(int argc, char *argv[])
 {
+   printf("Program name %s\n", argv[0]);
+   
+   log_open();
+
+   // log_write("This is a message.\n");
+   // log_note("This is a note.\n");
+   // log_warning("This is a warning.\n");
+   // log_error("This is an error.\n");
+
+   char* m;
+   int e;
+   /*if(0 > asprintf(&m, "%d lines read from %s\n", i, data_file_name)) return error;*/
+   e = asprintf(&m, "%s run.\n", argv[0]);
+   log_note(m);
+   free(m); 
+
    int i;
    if( argc >= 2 )
    {
@@ -30,13 +48,6 @@ int main(int argc, char *argv[])
        printf("argument list is empty.\n");
        /* Allow the user to enter data */ 
    }
-
-   log_open();
-
-   log_write("This is a message.\n");
-   log_note("This is a note.\n");
-   log_warning("This is a warning.\n");
-   log_error("This is an error.\n");
 
    Vector y;
    // y = test_vector();
@@ -62,6 +73,9 @@ int main(int argc, char *argv[])
    printf("SE              = %9.4f\n", se(y));
    printf("Variance (n)    = %9.4f\n", var(y,0));
    printf("SD (n)          = %9.4f\n", sd(y,0));
+   printf("t value, mu_0=0 = %9.4f\n", t_stat(y,0));
+   printf("----\n");
+   printf("tinv(0.95,5)    = %9.4f\n", tinv(0.95,5));
    printf("\n");
    printf("Test\n");
    printf("----\n");
@@ -78,6 +92,14 @@ int main(int argc, char *argv[])
    printf("R: qnorm(0.95)  =  1.644854\n");
    printf("zinv(0.975)     = %9.4f\n", zinv(0.975));
    printf("tinv(0.95,8)    = %9.4f\n", tinv(0.95,8));
+   printf("----\n");
+
+   Vector z;
+   z = rand_vector(10);
+   print_vector(z);
+   printf("----\n");
+   sort_vector(&z);
+   print_vector(z);
 
    log_close();
    return 0;

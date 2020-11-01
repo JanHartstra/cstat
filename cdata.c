@@ -5,9 +5,11 @@ Author:  Jan Hartstra
 Date:    2020-10-24
 */
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include "cdata.h"
+#include "clogs.h"
 
 /* Define the data vector structure */
 /* Should this be in header file? */
@@ -35,11 +37,12 @@ Vector test_vector(void)
 /* Function to load data from a simple text file */
 Vector load_vector(void) 
 {
+   char data_file_name[] = "test.dat";
    FILE *fp;
    // char temp[MAX_DATALINE_LENGTH];
    char dataline[100];
 
-   fp = fopen("test.dat", "r");
+   fp = fopen(data_file_name, "r");
 
    Vector x;
    int i = 0;
@@ -50,6 +53,14 @@ Vector load_vector(void)
    }
    fclose(fp);
    x.n = i;
+
+   char* m;
+   int e;
+   /*if(0 > asprintf(&m, "%d lines read from %s\n", i, data_file_name)) return error;*/
+   e = asprintf(&m, "%d lines read from %s\n", i, data_file_name);
+   log_note(m);
+   free(m); 
+
    return x;
 }
 
@@ -63,3 +74,82 @@ void print_vector(Vector x)
    }
 }
 
+Vector rand_vector (int n)
+{
+   Vector x;
+   x.n = n;
+   int i;
+   for (i = 0; i < n; i++)
+   {
+      x.data[i] = rand() % 100;
+   }
+   return x;
+}
+
+void sort_vector(Vector *x)
+{
+   int i, j;
+   double tmp;
+   for (i = 0; i < x.n; i++)
+   {
+      for (j = 0; j < x.n; j++)
+      {
+         if (x.data[i] < x.data[j])
+         {
+            temp = x.data[i];
+            x.data[i] = x.data[j];
+            x.data[j] = temp;
+         }
+      }
+   }
+}
+
+/*
+int main()
+{
+    int a[10], n, i, j, temp;
+    float mean, median;
+
+    printf("Enter no. for Random Numbers :");
+    scanf("%d", &n);
+    for (i = 0; i < n; i++)
+    {
+        a[i] = rand() % 100;
+    }
+    printf("Random Numbers Generated are :\n");
+    for (i = 0; i < n; i++)
+    {
+        printf("\n%d", a[i]);
+    }
+    printf("\n");
+    printf("\nSorted Data:");
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j < n; j++)
+        {
+            if (a[i] < a[j])
+            {
+                temp = a[i];
+                a[i] = a[j];
+                a[j] = temp;
+            }
+        }
+    }
+    for (i = 0; i < n; i++)
+    {
+        printf("\n%d", a[i]);
+    }
+
+    if (n % 2 == 0)
+    {
+        median = (a[n / 2] + a[(n / 2) - 1]) / 2;
+    }
+    else
+    {
+        median = a[n / 2];
+    }
+    printf("\nMedian is : %f", median);
+
+    return 0;
+}
+*/
