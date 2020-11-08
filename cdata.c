@@ -86,23 +86,45 @@ Vector rand_vector (int n)
    return x;
 }
 
-void sort_vector(Vector *x)
-{
-   int i, j;
+void swap_d (double *ptr1, double *ptr2) {
    double tmp;
-   for (i = 0; i < x.n; i++)
-   {
-      for (j = 0; j < x.n; j++)
-      {
-         if (x.data[i] < x.data[j])
-         {
-            temp = x.data[i];
-            x.data[i] = x.data[j];
-            x.data[j] = temp;
+   tmp = *ptr1;
+   *ptr1 = *ptr2;
+   *ptr2 = tmp;
+}
+
+void sort_vector(Vector *x) {
+   int i, j;
+   double *t;
+   t = x->data;
+   for (i = 0; i < (*x).n; i++) {
+      for (j = 0; j < (*x).n; j++) {
+         if (t[i] < t[j]) {
+            swap_d(&t[i], &t[j]);
          }
       }
    }
 }
+
+Vector vector_sort(Vector x) {
+   Vector s;
+   int i, j;
+   double *t;
+   t = x.data;
+   for (i = 0; i < x.n; i++) {
+      for (j = 0; j < x.n; j++) {
+         if (t[i] < t[j]) {
+            swap_d(&t[i], &t[j]);
+         }
+      }
+   }
+   s.n = x.n;
+   for (i = 0; i < x.n; i++) {
+      s.data[i] = t[i];
+   }
+   return(s);
+}
+
 
 /*
 int main()

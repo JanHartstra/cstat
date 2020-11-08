@@ -53,3 +53,5 @@ double se (Vector x);
 /* Calculate the t statistic for a one-sample Student's t test. */
 double t_stat (Vector x, double mu_0);
 
+double median (Vector x);
+

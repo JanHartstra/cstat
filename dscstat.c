@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
    // log_error("This is an error.\n");
 
    char* m;
-   int e;
+   // int e;
    /*if(0 > asprintf(&m, "%d lines read from %s\n", i, data_file_name)) return error;*/
-   e = asprintf(&m, "%s run.\n", argv[0]);
+   int e = asprintf(&m, "%s run.\n", argv[0]);
    log_note(m);
    free(m); 
 
@@ -74,12 +74,13 @@ int main(int argc, char *argv[])
    printf("Variance (n)    = %9.4f\n", var(y,0));
    printf("SD (n)          = %9.4f\n", sd(y,0));
    printf("t value, mu_0=0 = %9.4f\n", t_stat(y,0));
+   printf("Median          = %9.4f\n", median(y));
    printf("----\n");
    printf("tinv(0.95,5)    = %9.4f\n", tinv(0.95,5));
    printf("\n");
    printf("Test\n");
    printf("----\n");
-   printf("lgamma(5)       = %9.6f\n", lgamma(5));
+   printf("loggamma(5)     = %9.6f\n", loggamma(5));
    printf("R: lgamma(5)    =  3.178054\n");
    printf("beta(2,3)       = %9.6f\n", beta(2,3));
    printf("R: beta(2,3)    =  0.08333333\n");
@@ -94,12 +95,13 @@ int main(int argc, char *argv[])
    printf("tinv(0.95,8)    = %9.4f\n", tinv(0.95,8));
    printf("----\n");
 
-   Vector z;
+   Vector z, sz;
    z = rand_vector(10);
    print_vector(z);
    printf("----\n");
-   sort_vector(&z);
-   print_vector(z);
+   // sort_vector(&z);
+   sz = vector_sort(z);
+   print_vector(sz);
 
    log_close();
    return 0;

@@ -114,7 +114,23 @@ double se (Vector x)
    return sd(x,1)/sqrt(x.n);
 }
 
+/* Function returing the t-statistic.
+   Uses function mean()  and se().
+*/
 double t_stat (Vector x, double mu_0)
 {
    return (mean(x)-mu_0)/se(x);
+}
+
+/* Function returning the median of the data vector x.
+   Uses the vector_sort() function from the cdata library.
+*/
+double median (Vector x) {
+   Vector s = vector_sort(x);
+    if (s.n % 2 == 0) {
+        return ((s.data[s.n / 2] + s.data[(s.n / 2) - 1]) / 2);
+    }
+    else {
+        return (s.data[s.n / 2]);
+    }
 }

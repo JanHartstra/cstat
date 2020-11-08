@@ -26,4 +26,5 @@ void print_vector(Vector x);
 Vector rand_vector (int n);
 
 void sort_vector(Vector *x);
+Vector vector_sort(Vector x);
 
