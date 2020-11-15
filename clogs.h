@@ -2,7 +2,7 @@
 
 static FILE *log_fp;
 
-void log_open(void);
+void log_open(char *log_name);
 void log_close(void);
 void log_write (char *message);
 void log_note (char *message);

@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------------------
-Program name : dscstat.c
+Program name : validate.c
 Description  : Commandline program to check several function in several 
                libraries within the cstat c program collection
 Author       : Jan Hartstra
@@ -22,8 +22,7 @@ Compile      : 1) Compile the libraries used and/or validated:
 /* 
 Function comparing the test value against a specified reference value
 */
-void comparing (double ref_val, double test_val)
-{
+void comparing (double ref_val, double test_val) {
    double adiff, rdiff, pdiff;
    adiff = fabs(test_val - ref_val);
    rdiff = adiff / ref_val;
@@ -35,8 +34,7 @@ void comparing (double ref_val, double test_val)
    printf("Absolute difference between test and reference value: %f (%f6.2 %%)\n", adiff, pdiff); 
 }
 
-double test_Pt (double t, int df) 
-{
+double test_Pt (double t, int df) {
    double a, b, x;
    a = df / 2; 
    b = 1.0 / 2.0; 
@@ -47,19 +45,16 @@ double test_Pt (double t, int df)
    return 1 - (incbeta(a,b,x) / 2);
 } 
 
-
-
-
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
    printf("Program name %s\n", argv[0]);
    
-   log_open();
+   log_open(argv[0]); // Open the log file.
 
-   // log_write("This is a message.\n");
-   // log_note("This is a note.\n");
-   // log_warning("This is a warning.\n");
-   // log_error("This is an error.\n");
+   /* Testing the clogs library. */
+   log_write("This is a message.\n");
+   log_note("This is a note.\n");
+   log_warning("This is a warning.\n");
+   log_error("This is an error.\n");
 
    char* m;
    int e;
@@ -68,8 +63,7 @@ int main(int argc, char *argv[])
    log_note(m);
    free(m); 
 
-   if( argc >= 2 )
-   {
+   if ( argc >= 2 ) {
       printf("Command line arguments ignored.");
    }
 
@@ -135,7 +129,9 @@ int main(int argc, char *argv[])
    printf("zinv(0.975)     = %9.4f\n", zinv(0.975));
    printf("tinv(0.95,8)    = %9.4f\n", tinv(0.95,8));
 */
-   log_close();
+
+   log_close(); // Close the log file.
+
    return 0;
 } 
 

@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 {
    printf("Program name %s\n", argv[0]);
    
-   log_open();
+   log_open(argv[0]);
 
    // log_write("This is a message.\n");
    // log_note("This is a note.\n");
@@ -58,23 +58,7 @@ int main(int argc, char *argv[])
    printf("\n");
    /* Calculate descriptive statistics for the data in data vector */
    /* Print the descriptive statistics to standard out (or file?) */
-
-   printf("Summary Statistics\n");
-   printf("------------------\n");
-   double s = sum(y);
-   printf("Sum             = %9.4f\n", s);
-   printf("Minimum         = %9.4f\n", min(y));
-   printf("Maximum         = %9.4f\n", max(y));
-   printf("Range (max-min) = %9.4f\n", range(y));
-   printf("Mean            = %9.4f\n", mean(y));
-   printf("Geometric mean  = %9.4f\n", geomean(y));
-   printf("Variance (n-1)  = %9.4f\n", var(y,1));
-   printf("SD (n-1)        = %9.4f\n", sd(y,1));
-   printf("SE              = %9.4f\n", se(y));
-   printf("Variance (n)    = %9.4f\n", var(y,0));
-   printf("SD (n)          = %9.4f\n", sd(y,0));
-   printf("t value, mu_0=0 = %9.4f\n", t_stat(y,0));
-   printf("Median          = %9.4f\n", median(y));
+   summary(y);
    printf("----\n");
    printf("tinv(0.95,5)    = %9.4f\n", tinv(0.95,5));
    printf("\n");

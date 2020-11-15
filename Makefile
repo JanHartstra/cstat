@@ -10,6 +10,9 @@ all: $(TARGET)
 $(TARGET): $(OBJFILES)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJFILES) $(LDFLAGS) #$(DEPS)
 
+validate: $(OBJFILES)
+	$(CC) $(CFLAGS) -o validate $(OBJFILES) $(LDFLAGS) #$(DEPS)
+
 clean:
 	rm -f $(OBJFILES) $(TARGET) *~
 
