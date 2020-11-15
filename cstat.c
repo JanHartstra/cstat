@@ -134,3 +134,22 @@ double median (Vector x) {
         return (s.data[s.n / 2]);
     }
 }
+
+void summary (Vector x) {
+   /* TODO: Use variable formating. */
+   printf("Summary Statistics\n");
+   printf("------------------\n");
+   printf("Sum             = %9.4f\n", sum(x));
+   printf("Minimum         = %9.4f\n", min(x));
+   printf("Maximum         = %9.4f\n", max(x));
+   printf("Range (max-min) = %9.4f\n", range(x));
+   printf("Mean            = %9.4f\n", mean(x));
+   printf("Geometric mean  = %9.4f\n", geomean(x));
+   printf("Variance (n-1)  = %9.4f\n", var(x,1));
+   printf("SD (n-1)        = %9.4f\n", sd(x,1));
+   printf("SE              = %9.4f\n", se(x));
+   printf("Variance (n)    = %9.4f\n", var(x,0));
+   printf("SD (n)          = %9.4f\n", sd(x,0));
+   printf("t value, mu_0=0 = %9.4f\n", t_stat(x,0));
+   printf("Median          = %9.4f\n", median(x));
+}

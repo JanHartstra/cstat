@@ -55,3 +55,8 @@ double t_stat (Vector x, double mu_0);
 
 double median (Vector x);
 
+/* Function providing a summary of descriptive statistics for data vector x.
+   Depends on almost all of the above functions.
+*/
+void summary (Vector x);
+
